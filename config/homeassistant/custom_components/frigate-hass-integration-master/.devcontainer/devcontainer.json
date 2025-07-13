@@ -1,0 +1,57 @@
+{
+  "dockerComposeFile": "../docker-compose.yml",
+  "service": "devcontainer",
+  "features": {
+    "ghcr.io/devcontainers/features/docker-outside-of-docker:1": {
+      "moby": false
+    }
+  },
+  "workspaceFolder": "${localWorkspaceFolder}",
+  "initializeCommand": [".devcontainer/scripts/devcontainer_initialize.sh"],
+  "postCreateCommand": [".devcontainer/scripts/devcontainer_post_create.sh"],
+  "forwardPorts": ["homeassistant:8123", "frigate:5000"],
+  "portsAttributes": {
+    "homeassistant:8123": {
+      "label": "Home Assistant",
+      "onAutoForward": "silent"
+    },
+    "frigate:5000": {
+      "label": "Frigate",
+      "onAutoForward": "silent"
+    }
+  },
+  "customizations": {
+    "vscode": {
+      "extensions": [
+        "ms-python.python",
+        "mikoz.black-py",
+        "streetsidesoftware.code-spell-checker",
+        "esbenp.prettier-vscode",
+        "redhat.vscode-yaml",
+        "keesschollaart.vscode-home-assistant",
+        "ms-azuretools.vscode-docker",
+        "github.vscode-pull-request-github",
+        "github.vscode-github-actions"
+      ],
+      "settings": {
+        "python.defaultInterpreterPath": "/usr/local/bin/python",
+        "editor.formatOnSave": true,
+        "yaml.schemas": {
+          "http://frigate:5000/api/config/schema.json": "/frigate_config/config.yml"
+        },
+        "vscode-home-assistant.hostUrl": "http://homeassistant:8123",
+        "vscode-home-assistant.longLivedAccessToken": "eyJ0eXAiOiJKV1QiLCJhbGciOiJIUzI1NiJ9.eyJpc3MiOiJhOTZjZTdhYTg0YzU0ODcxYWZhNTJmYmU4OWFmMjg3OSIsImlhdCI6MTY1NDgwNzk2MiwiZXhwIjoxOTcwMTY3OTYyfQ.0JUxrtqWWj-FwkAujcQCc5aRq9sf5_uR_sCI2eWcmIE",
+        "files.associations": {
+          "**/homeassistant_preconfig/.storage/*": "json",
+          "**/homeassistant_config/*configuration.yaml": "home-assistant"
+        },
+        "[home-assistant]": {
+          "editor.defaultFormatter": "keesschollaart.vscode-home-assistant"
+        },
+        "[json][jsonc][yaml]": {
+          "editor.defaultFormatter": "esbenp.prettier-vscode"
+        }
+      }
+    }
+  }
+}

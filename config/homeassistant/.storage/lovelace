@@ -1,0 +1,54 @@
+{
+  "version": 1,
+  "minor_version": 1,
+  "key": "lovelace",
+  "data": {
+    "config": {
+      "views": [
+        {
+          "path": "default_view",
+          "title": "Home",
+          "cards": [
+            {
+              "type": "entities",
+              "entities": [
+                "sensor.gr6exx0c_download_speed",
+                "sensor.gr6exx0c_upload_speed"
+              ],
+              "title": "Bedroom"
+            },
+            {
+              "type": "entities",
+              "entities": [
+                "person.khizr"
+              ]
+            },
+            {
+              "type": "weather-forecast",
+              "entity": "weather.forecast_home",
+              "show_forecast": false
+            },
+            {
+              "type": "entities",
+              "entities": [
+                {
+                  "entity": "switch.homebase_system_drone_1_deploy",
+                  "name": "Drone 1 Deploy"
+                },
+                {
+                  "entity": "switch.homebase_system_front_door_camera_speak",
+                  "name": "Front Door Camera Speak"
+                },
+                {
+                  "entity": "switch.homebase_system_sentry_1_aim",
+                  "name": "Sentry 1 Aim"
+                }
+              ],
+              "title": "Homebase System"
+            }
+          ]
+        }
+      ]
+    }
+  }
+}

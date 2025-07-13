@@ -1,0 +1,18 @@
+# configuration.yaml
+default_config:
+
+#mqtt:
+ # broker: 127.0.0.1          # ← service name from docker-compose
+  #port: 1883
+  #username: hb_local
+  #password: password
+  #discovery: true
+  #discovery_prefix: homeassistant
+
+frontend:
+  themes: !include_dir_merge_named themes
+
+automation: !include automations.yaml
+script:     !include scripts.yaml
+scene:      !include scenes.yaml
+

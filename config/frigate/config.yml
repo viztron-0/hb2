@@ -1,0 +1,46 @@
+# ----------  MQTT  ----------
+mqtt:
+  host: mosquitto            # container-name from docker-compose
+  user: hb_local            # same creds you set with mosquitto_passwd
+  password: password
+  topic_prefix: homebase
+# ----------  CAMERAS  ----------
+cameras:
+  front_door:
+    ffmpeg:
+      # Force TCP → more reliable on Wi-Fi
+      input_args: -rtsp_transport tcp
+      inputs:
+        - path: rtsp://khizrkazmi%40gmail.com:password@192.168.1.235:554/stream1
+          roles: [detect, record, audio]
+
+    detect:
+      enabled: true
+      width: 1920            # match actual stream size
+      height: 1080
+      fps: 5              # detection cadence (not the camera FPS)
+    audio:
+      enabled: true
+
+    record:                  # replaces old “clips:” block
+      enabled: true
+      retain:
+        days: 1             # keep video segments 10 days
+      alerts:
+        retain: {}
+        pre_capture: 5
+        post_capture: 5
+      detections:
+        retain: {}
+        pre_capture: 5
+        post_capture: 5
+objects:
+  track:
+    - person
+    - vehicle
+
+# ----------  DATABASE ---------- 
+database:
+  path: /opt/frigate/db/frigate.db   # filename required (fixed)
+
+version: 0.15-1

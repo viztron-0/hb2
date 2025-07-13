@@ -1,0 +1,42 @@
+Signature-Version: 1.0
+Created-By: 17.0.15 (Amazon.com Inc.)
+SHA-256-Digest-Manifest: priTxUhPcNShiuzKtFW3ZJLYpx4idD31Co8nixiwA7k=
+SHA-256-Digest-Manifest-Main-Attributes: T7zhrDz5MKMzrzfc/OjLjH3i5miKDDS
+ uU08YOsjfCUY=
+
+Name: bin/loader
+SHA-256-Digest: FRfEDkprkhL4g/OTnqfVjYOXttel4yEP4AzTuzPS8mY=
+
+Name: bin/loader.cmd
+SHA-256-Digest: +cKpkq/3iCeNIvRL3SB2rHzYtfXmX3C2vA7qQXAiRjs=
+
+Name: NOTICE
+SHA-256-Digest: +vr26HbA5dFCNzZ9pWEd/99SMvDQzs20mFmqsmGS+zY=
+
+Name: bin/greengrass.xml.template
+SHA-256-Digest: UYQqyDIaFDqqHQTU015anxH7eEVxiyl3JDpXKpVc/1A=
+
+Name: THIRD-PARTY-LICENSES
+SHA-256-Digest: o+Ej5XXYuQFZCQiiQuHAUnTUfyDn9Ltg1Lhte3gPejM=
+
+Name: bin/greengrass.service.procd.template
+SHA-256-Digest: Bz2O2MDWfiRg5YjSOW54P5BmCNUzHxk6MkGgA64slj4=
+
+Name: LICENSE
+SHA-256-Digest: fnKni7uVlRfrHMGuF/SP0eQvJp9sNPvsO+50OsnvMjo=
+
+Name: bin/greengrass.exe
+SHA-256-Digest: Oi6nlhXKNqvw8TmWDKOWDnUdRkpsGd1lcGCb6GMpHlY=
+
+Name: bin/greengrass.service.template
+SHA-256-Digest: 4TpSnZ0ISi6G+KqYlLbcHFdtpWeI3hYPPz167CC9pL8=
+
+Name: conf/recipe.yaml
+SHA-256-Digest: FLchDcJ6Pay3hOgP4ws1ogfpbJuFEv8ggT6kuqzoC+U=
+
+Name: README.md
+SHA-256-Digest: kNFfnx5XMT1XYoCQ4PmCa08SidlhLkDEIGQjhJDt18Y=
+
+Name: lib/Greengrass.jar
+SHA-256-Digest: pPpdwTsT5g1ksAhk7swze+ZKUhFcuKBCLkzJZb03OiY=
+

@@ -1,0 +1,30 @@
+{
+  "version": 1,
+  "minor_version": 2,
+  "key": "repairs.issue_registry",
+  "data": {
+    "issues": [
+      {
+        "created": "2025-06-11T23:02:05.203372+00:00",
+        "dismissed_version": "2025.5.3",
+        "domain": "homeassistant",
+        "is_persistent": false,
+        "issue_id": "platform_integration_no_support_sensor_mqtt"
+      },
+      {
+        "created": "2025-07-01T22:20:05.741064+00:00",
+        "dismissed_version": null,
+        "domain": "homeassistant",
+        "is_persistent": false,
+        "issue_id": "config_entry_reauth_mqtt_01JXGKAC8D8SYAGCB3V19WQ6DP"
+      },
+      {
+        "created": "2025-07-01T22:38:26.725948+00:00",
+        "dismissed_version": null,
+        "domain": "hacs",
+        "is_persistent": false,
+        "issue_id": "restart_required_311536795_tags/v5.9.3"
+      }
+    ]
+  }
+}

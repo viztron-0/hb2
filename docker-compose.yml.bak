@@ -1,0 +1,53 @@
+
+services:
+  homeassistant:
+    container_name: homeassistant
+    image: ghcr.io/home-assistant/home-assistant:stable
+    network_mode: host    
+    volumes:
+      - ./config/homeassistant:/config
+      - /etc/localtime:/etc/localtime:ro
+    restart: unless-stopped
+
+  mosquitto:
+    container_name: mosquitto_broker
+    image: eclipse-mosquitto:2.0
+    network_mode: host
+    ports:
+      - "1884:1884"
+      - "9001:9001"  # Optional: WebSocket support
+    volumes:
+      - ./mosquitto/config:/mosquitto/config
+      - ./mosquitto/data:/mosquitto/data
+      - ./mosquitto/log:/mosquitto/log
+      - /etc/ssl/certs:/etc/ssl/certs:ro
+    restart: unless-stopped
+
+  frigate:
+    container_name: frigate
+    image: ghcr.io/blakeblackshear/frigate:stable
+    privileged: true
+    network_mode: host
+    volumes:
+      - /etc/localtime:/etc/localtime:ro
+      - ./config/frigate:/config
+      - ./frigate/media:/media/frigate
+      - ./frigate/db:/opt/frigate/db
+      - ./models:/models
+    ports:
+      - "5000:5000"  # Frigate UI
+      - "1935:1935"  # RTMP (optional)          
+    depends_on:
+      - mosquitto
+    restart: unless-stopped
+
+  nodered:                          # ← Added Node-RED service
+    container_name: nodered
+    image: nodered/node-red:latest
+    network_mode: host              # share Pi’s network for MQTT access
+    user: root
+    volumes:
+      - ./nodered/data:/data        # persist your flows and settings
+    restart: unless-stopped
+    
+  

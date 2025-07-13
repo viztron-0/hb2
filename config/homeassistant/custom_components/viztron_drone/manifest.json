@@ -1,0 +1,9 @@
+{
+  "domain": "viztron_drone",
+  "name": "Viztron Drone",
+  "version": "0.1.0",
+  "dependencies": ["mqtt"],
+  "requirements": ["paho-mqtt>=1.6.1"],
+  "codeowners": ["@YourGitHub"],
+  "iot_class": "local_polling"
+}

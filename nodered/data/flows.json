@@ -1,0 +1,469 @@
+[
+    {
+        "id": "f75ec70d644e9997",
+        "type": "tab",
+        "label": "Flow 1",
+        "disabled": false,
+        "info": "",
+        "env": []
+    },
+    {
+        "id": "b6701890d5783cf2",
+        "type": "tab",
+        "label": "Flow 2",
+        "disabled": false,
+        "info": "",
+        "env": []
+    },
+    {
+        "id": "701e9b95fe55727e",
+        "type": "mqtt-broker",
+        "name": "mosquitto",
+        "broker": "127.0.0.1",
+        "port": "8883",
+        "clientid": "",
+        "autoConnect": true,
+        "usetls": false,
+        "protocolVersion": 4,
+        "keepalive": 60,
+        "cleansession": true,
+        "autoUnsubscribe": true,
+        "birthTopic": "",
+        "birthQos": "0",
+        "birthRetain": "false",
+        "birthPayload": "",
+        "birthMsg": {},
+        "closeTopic": "",
+        "closeQos": "0",
+        "closeRetain": "false",
+        "closePayload": "",
+        "closeMsg": {},
+        "willTopic": "",
+        "willQos": "0",
+        "willRetain": "false",
+        "willPayload": "",
+        "willMsg": {},
+        "userProps": "",
+        "sessionExpiry": ""
+    },
+    {
+        "id": "frigate_in",
+        "type": "mqtt in",
+        "z": "f75ec70d644e9997",
+        "name": "Frigate Events",
+        "topic": "frigate/events",
+        "qos": "1",
+        "datatype": "json",
+        "broker": "701e9b95fe55727e",
+        "nl": false,
+        "rap": false,
+        "inputs": 0,
+        "x": 110,
+        "y": 280,
+        "wires": [
+            [
+                "switch_person"
+            ]
+        ]
+    },
+    {
+        "id": "switch_person",
+        "type": "switch",
+        "z": "f75ec70d644e9997",
+        "name": "Is Person?",
+        "property": "payload.label",
+        "rules": [
+            {
+                "t": "eq",
+                "v": "person",
+                "vt": "str"
+            }
+        ],
+        "outputs": 1,
+        "x": 310,
+        "y": 280,
+        "wires": [
+            [
+                "set_siren_payload"
+            ]
+        ]
+    },
+    {
+        "id": "set_siren_payload",
+        "type": "change",
+        "z": "f75ec70d644e9997",
+        "name": "Set Siren Payload",
+        "rules": [
+            {
+                "t": "set",
+                "p": "payload",
+                "pt": "msg",
+                "to": "{\"op\":\"siren\",\"on\":true}",
+                "tot": "json"
+            }
+        ],
+        "x": 510,
+        "y": 280,
+        "wires": [
+            [
+                "mqtt_out_siren",
+                "debug1"
+            ]
+        ]
+    },
+    {
+        "id": "mqtt_out_siren",
+        "type": "mqtt out",
+        "z": "f75ec70d644e9997",
+        "name": "Trigger Siren",
+        "topic": "homebase/front_door/cmd",
+        "qos": "1",
+        "retain": false,
+        "respTopic": "",
+        "contentType": "",
+        "userProps": "",
+        "correl": "",
+        "expiry": "",
+        "broker": "701e9b95fe55727e",
+        "x": 790,
+        "y": 280,
+        "wires": []
+    },
+    {
+        "id": "debug1",
+        "type": "debug",
+        "z": "f75ec70d644e9997",
+        "name": "Debug Payload",
+        "active": true,
+        "tosidebar": true,
+        "console": false,
+        "targetType": "msg",
+        "x": 520,
+        "y": 420,
+        "wires": []
+    },
+    {
+        "id": "in_detect",
+        "type": "mqtt in",
+        "z": "b6701890d5783cf2",
+        "name": "Detections",
+        "topic": "camera/+/detections",
+        "qos": "1",
+        "datatype": "json",
+        "broker": "701e9b95fe55727e",
+        "nl": false,
+        "rap": false,
+        "inputs": 0,
+        "x": 120,
+        "y": 200,
+        "wires": [
+            [
+                "fn_score"
+            ]
+        ]
+    },
+    {
+        "id": "fn_score",
+        "type": "function",
+        "z": "b6701890d5783cf2",
+        "name": "Compute Threat Score",
+        "func": "// expects detection JSON in msg.payload\nlet p = msg.payload;\nif (p.class !== \"person\") return null;\nlet score = 0;\nconst zoneWeight = {1:0.3, 2:0.2, 3:0.1};\nscore += (zoneWeight[p.zone] || 0) * 100;\nlet c = p.clothing || {};\nif ((c.mask || 0)    > 0.6) score += 40;\nif ((c.hoodie || 0)  > 0.6) score += 30;\nif ((c.gloves || 0)  > 0.5) score += 20;\nif ((c.hat || 0)     > 0.5) score += 20;\nlet itm = p.items || {};\nif ((itm.gun || 0)          > 0.6) score += 60;\nif ((itm.long_object || 0)  > 0.5) score += 30;\nif ((itm.package || 0) > 0.7 && (c.uniform_logo || 0) > 0.6) score -= 40;\nlet pose = p.pose || {};\nif ((pose.crouching || 0)           > 0.6) score += 30;\nif ((pose.standing_patiently || 0)  > 0.6) score -= 30;\nlet h = new Date(p.timestamp * 1000).getHours();\nscore += (h < 3 || h >= 21) ? 20 : (h >= 18 ? 10 : 5);\nscore = Math.max(0, Math.min(100, Math.round(score)));\np.threat_score = score;\nmsg.score = score;\nmsg.camera_id = msg.topic.split(\"/\")[1];\nreturn msg;",
+        "outputs": 1,
+        "timeout": "",
+        "noerr": 0,
+        "initialize": "",
+        "finalize": "",
+        "libs": [],
+        "x": 360,
+        "y": 200,
+        "wires": [
+            [
+                "fn_route",
+                "9f55503af86e83b4"
+            ]
+        ]
+    },
+    {
+        "id": "fn_route",
+        "type": "function",
+        "z": "b6701890d5783cf2",
+        "name": "Route PT Level",
+        "func": "let s = msg.score;\nif (s >= 70)       return [msg, null, null];\nelse if (s >= 51)  return [null, msg, null];\nelse if (s >= 31)  return [null, null, msg];\nreturn null;",
+        "outputs": 3,
+        "timeout": "",
+        "noerr": 0,
+        "initialize": "",
+        "finalize": "",
+        "libs": [],
+        "x": 560,
+        "y": 200,
+        "wires": [
+            [
+                "tmpl_drone_dep",
+                "tmpl_aim",
+                "tmpl_alarm"
+            ],
+            [
+                "tmpl_inquiry"
+            ],
+            []
+        ]
+    },
+    {
+        "id": "tmpl_drone_dep",
+        "type": "template",
+        "z": "b6701890d5783cf2",
+        "name": "Drone Deploy",
+        "field": "payload",
+        "fieldType": "msg",
+        "format": "json",
+        "syntax": "mustache",
+        "template": "{\"op\":\"drone\",\"action\":\"deploy\"}",
+        "x": 800,
+        "y": 60,
+        "wires": [
+            [
+                "out_drone"
+            ]
+        ]
+    },
+    {
+        "id": "tmpl_aim",
+        "type": "template",
+        "z": "b6701890d5783cf2",
+        "name": "Sentry Aim",
+        "field": "payload",
+        "fieldType": "msg",
+        "format": "json",
+        "syntax": "mustache",
+        "template": "{\"op\":\"sentry\",\"action\":\"aim\"}",
+        "x": 790,
+        "y": 140,
+        "wires": [
+            [
+                "out_sentry",
+                "tmpl_fire_req"
+            ]
+        ]
+    },
+    {
+        "id": "tmpl_fire_req",
+        "type": "template",
+        "z": "b6701890d5783cf2",
+        "name": "Request Fire Confirm",
+        "field": "payload",
+        "fieldType": "msg",
+        "format": "json",
+        "syntax": "mustache",
+        "template": "{\"request\":\"confirm_fire\"}",
+        "x": 1340,
+        "y": 140,
+        "wires": [
+            [
+                "out_sentry"
+            ]
+        ]
+    },
+    {
+        "id": "tmpl_alarm",
+        "type": "template",
+        "z": "b6701890d5783cf2",
+        "name": "Alarm ON",
+        "field": "payload",
+        "fieldType": "msg",
+        "format": "json",
+        "template": "{\"op\":\"alarm\",\"on\":true}",
+        "x": 780,
+        "y": 260,
+        "wires": [
+            [
+                "out_alarm"
+            ]
+        ]
+    },
+    {
+        "id": "tmpl_inquiry",
+        "type": "template",
+        "z": "b6701890d5783cf2",
+        "name": "Polite Inquiry",
+        "field": "payload",
+        "fieldType": "msg",
+        "format": "json",
+        "syntax": "mustache",
+        "template": "{\"op\":\"speaker\",\"action\":\"polite_inquiry\"}",
+        "output": "json",
+        "x": 790,
+        "y": 340,
+        "wires": [
+            [
+                "224f92f9a58bb046"
+            ]
+        ]
+    },
+    {
+        "id": "in_confirm",
+        "type": "mqtt in",
+        "z": "b6701890d5783cf2",
+        "name": "User Confirm Fire",
+        "topic": "homebase/user/confirm_fire",
+        "qos": "1",
+        "datatype": "json",
+        "broker": "701e9b95fe55727e",
+        "nl": false,
+        "rap": false,
+        "inputs": 0,
+        "x": 180,
+        "y": 820,
+        "wires": [
+            [
+                "sw_confirm"
+            ]
+        ]
+    },
+    {
+        "id": "sw_confirm",
+        "type": "switch",
+        "z": "b6701890d5783cf2",
+        "name": "yes?",
+        "property": "payload.yes",
+        "propertyType": "msg",
+        "rules": [
+            {
+                "t": "true"
+            }
+        ],
+        "outputs": 1,
+        "x": 450,
+        "y": 820,
+        "wires": [
+            [
+                "tmpl_fire_cmd"
+            ]
+        ]
+    },
+    {
+        "id": "tmpl_fire_cmd",
+        "type": "template",
+        "z": "b6701890d5783cf2",
+        "name": "Sentry FIRE",
+        "field": "payload",
+        "fieldType": "msg",
+        "format": "json",
+        "template": "{\"op\":\"sentry\",\"action\":\"fire\"}",
+        "x": 730,
+        "y": 820,
+        "wires": [
+            [
+                "out_sentry"
+            ]
+        ]
+    },
+    {
+        "id": "out_drone",
+        "type": "mqtt out",
+        "z": "b6701890d5783cf2",
+        "name": "→ drone_1/cmd",
+        "topic": "homebase/drone_1/cmd",
+        "qos": "1",
+        "retain": false,
+        "respTopic": "",
+        "contentType": "",
+        "userProps": "",
+        "correl": "",
+        "expiry": "",
+        "broker": "701e9b95fe55727e",
+        "x": 1020,
+        "y": 60,
+        "wires": []
+    },
+    {
+        "id": "out_sentry",
+        "type": "mqtt out",
+        "z": "b6701890d5783cf2",
+        "name": "→ sentry_1/cmd",
+        "topic": "homebase/sentry_1/cmd",
+        "qos": "1",
+        "retain": false,
+        "respTopic": "",
+        "contentType": "",
+        "userProps": "",
+        "correl": "",
+        "expiry": "",
+        "broker": "701e9b95fe55727e",
+        "x": 1040,
+        "y": 820,
+        "wires": []
+    },
+    {
+        "id": "out_alarm",
+        "type": "mqtt out",
+        "z": "b6701890d5783cf2",
+        "name": "→ house_alarm/cmd",
+        "topic": "homebase/house_alarm/cmd",
+        "qos": "1",
+        "retain": false,
+        "respTopic": "",
+        "contentType": "",
+        "userProps": "",
+        "correl": "",
+        "expiry": "",
+        "broker": "701e9b95fe55727e",
+        "x": 1040,
+        "y": 260,
+        "wires": []
+    },
+    {
+        "id": "out_speaker",
+        "type": "mqtt out",
+        "z": "b6701890d5783cf2",
+        "name": "→ cam speaker",
+        "topic": "",
+        "qos": "1",
+        "retain": false,
+        "respTopic": "",
+        "contentType": "",
+        "userProps": "",
+        "correl": "",
+        "expiry": "",
+        "broker": "701e9b95fe55727e",
+        "x": 1160,
+        "y": 340,
+        "wires": []
+    },
+    {
+        "id": "9f55503af86e83b4",
+        "type": "debug",
+        "z": "b6701890d5783cf2",
+        "name": "debug 1",
+        "active": true,
+        "tosidebar": true,
+        "console": false,
+        "tostatus": false,
+        "complete": "false",
+        "statusVal": "",
+        "statusType": "auto",
+        "x": 460,
+        "y": 80,
+        "wires": []
+    },
+    {
+        "id": "224f92f9a58bb046",
+        "type": "function",
+        "z": "b6701890d5783cf2",
+        "name": "function 1",
+        "func": "msg.topic = \"homebase/camera/\" + msg.camera_id + \"/cmd\";\nreturn msg;\n\nreturn msg;",
+        "outputs": 1,
+        "timeout": 0,
+        "noerr": 0,
+        "initialize": "",
+        "finalize": "",
+        "libs": [],
+        "x": 980,
+        "y": 340,
+        "wires": [
+            [
+                "out_speaker"
+            ]
+        ]
+    }
+]
